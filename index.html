@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -772,9 +772,11 @@
       }
     }
   </style>
-  <!-- Классическая надежная загрузка Three.js + OrbitControls с автоматическим резервным зеркалом -->
-  <script src="./three.min.js"></script>
-  <script src="./OrbitControls.js"></script>
+  <!-- Приоритетная загрузка локальных файлов (без VPN) с автоматическим резервом из CDN -->
+  <script src="./three.min.js"
+          onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js'"></script>
+  <script src="./OrbitControls.js"
+          onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js'"></script>
 </head>
 <body>
 
@@ -1303,28 +1305,10 @@
           <label>Провал в ручей матрицы <span id="valDrop" class="val-badge">0.0 мм</span></label>
         </div>
 
-        <div class="control-group">
-          <label>Ход пуансона Y <span id="valStroke" class="val-badge">20.0 мм</span></label>
-          <input type="range" id="rngStroke" min="-25" max="100" step="0.5" value="20"
-                 data-tip-title="Ручное управление высотой пуансона Y (мм)"
-                 data-tip-desc="Позволяет вручную поднять или опустить верхний пуансон, чтобы проверить зазор при вынимании готовой согнутой детали из станка."
-                 data-tip-svg="punch_stroke">
-        </div>
-
-        <div class="control-group">
-          <label style="justify-content: flex-start; gap: 8px; cursor: pointer;"
-                 data-tip-title="Автоматическая синхронизация хода пуансона"
-                 data-tip-desc="Когда включено, острие пуансона автоматически опускается вместе с деталью на дно ручья матрицы пропорционально углу гиба."
-                 data-tip-svg="punch_stroke">
-            <input type="checkbox" id="chkAutoStroke" checked>
-            <span>Авто-ход пуансона и провал в ручей</span>
-          </label>
-        </div>
-
         <div class="btn-group" style="margin-top: 10px;">
           <button id="btnSaveBend" class="btn btn-success"
                   data-tip-title="Зафиксировать текущий гиб и перейти к следующему"
-                  data-tip-desc="Сохраняет выполненный сгиб в геометрии детали, записывает его фиолетовую ось и делает 3D-снимок для техкарты. После этого кликните по любой полке детали, чтобы уложить её на ручей для следующего гиба!"
+                  data-tip-desc="Сохраняет выполненный сгиб в геометрии детали, записывает его фиолетовую ось и делает 3D-снимок для техкарты."
                   data-tip-svg="save_bend">✔ Зафиксировать гиб (сохранить ось)</button>
         </div>
       </div>
@@ -1332,22 +1316,28 @@
       <!-- 5. История гибов и Техкарта -->
       <div class="section">
         <div class="section-title">
-          <span>5. История переходов и Техкарта</span>
-          <button id="btnResetPart" class="btn btn-danger" style="width:auto; padding:2px 8px; font-size:11px;"
-                  data-tip-title="Развернуть деталь обратно в плоский лист"
-                  data-tip-desc="Сбрасывает все выполненные гибы и возвращает заготовку в исходное плоское состояние (0°)."
-                  data-tip-svg="reset">Развернуть в 0</button>
+          <span>5. История переходов</span>
+          <div style="display:flex; gap:4px;">
+            <button id="btnUndoLastBend" class="btn" style="width:auto; padding:2px 7px; font-size:11px; border-color:#93c5fd; color:#1d4ed8;"
+                    data-tip-title="Отменить предыдущий (последний) гиб (Ctrl+Z)"
+                    data-tip-desc="Возвращает деталь на один шаг назад, удаляя последний зафиксированный гиб."
+                    data-tip-svg="reset">↩ Отменить гиб</button>
+            <button id="btnResetPart" class="btn btn-danger" style="width:auto; padding:2px 7px; font-size:11px;"
+                    data-tip-title="Развернуть деталь обратно в плоский лист"
+                    data-tip-desc="Сбрасывает все выполненные гибы и возвращает заготовку в исходное плоское состояние (0°)."
+                    data-tip-svg="reset">В 0°</button>
+          </div>
         </div>
         <ul id="historyList" class="history-list"
             data-tip-title="Журнал зафиксированных переходов гибки"
-            data-tip-desc="Отображает список всех последовательно выполненных гибов с их углами и дистанцией упора Z."
+            data-tip-desc="Отображает список всех последовательно выполненных гибов. Нажмите ✕, чтобы отменить любой конкретный гиб."
             data-tip-svg="tech_card">
           <li class="history-item" style="color: var(--text-muted);">Гибов пока нет (плоская заготовка)</li>
         </ul>
         <div style="margin-top: 10px;">
           <button id="btnOpenTechCard" class="btn btn-primary"
                   data-tip-title="Сформировать технологическую карту гибки (PDF / Печать)"
-                  data-tip-desc="Открывает готовый иллюстрированный отчет со скриншотами каждого перехода, углами, размерами базирования и параметрами инструмента для печати или сохранения в PDF."
+                  data-tip-desc="Открывает готовый иллюстрированный отчет со скриншотами каждого перехода для печати или сохранения в PDF."
                   data-tip-svg="tech_card">📄 Открыть техкарту гибки (PDF / Печать)</button>
         </div>
       </div>
@@ -1377,7 +1367,6 @@
       <div><span class="legend-dot" style="background:#0891b2;"></span><strong>Голубой / Фиолетовый</strong> — 3D-Линейка и 3D-Угломер</div>
     </div>
 
-    <!-- Постоянная плашка-дисклеймер и копирайт внизу 3D-окна -->
     <div id="viewportDisclaimer">
       ℹ️ <strong>Только 3D-визуализатор</strong> (не для высокоточных расчетов). Интеллектуальная собственность: <strong>Стояновский Ян Алексеевич</strong>. Использование <strong>только в ознакомительных целях</strong> (не для коммерческого применения).
     </div>
@@ -1385,22 +1374,13 @@
 
   <!-- Нижняя панель переключения вкладок для смартфонов -->
   <div id="mobileNav">
-    <button id="tabBtnPanel" class="active-tab" onclick="switchMobileTab('panel')"
-            data-tip-title="Панель настроек и DXF"
-            data-tip-desc="Переключает экран смартфона на панель загрузки DXF, выбора граней и настройки инструмента."
-            data-tip-svg="sheet_params">
+    <button id="tabBtnPanel" class="active-tab" onclick="switchMobileTab('panel')">
       <span>🎛 Настройки и DXF</span>
     </button>
-    <button id="tabBtn3D" onclick="switchMobileTab('3d')"
-            data-tip-title="Интерактивное 3D-окно"
-            data-tip-desc="Открывает полноэкранный 3D-вид станка и детали для вращения пальцем, выбора граней и гибки."
-            data-tip-svg="bend_angle">
+    <button id="tabBtn3D" onclick="switchMobileTab('3d')">
       <span>🧊 3D-Визуализатор</span>
     </button>
-    <button id="tabBtnTech" onclick="openTechCardModal()"
-            data-tip-title="Открыть техкарту гибки"
-            data-tip-desc="Формирует пошаговую технологическую карту гибки со скриншотами для просмотра или сохранения в PDF."
-            data-tip-svg="tech_card">
+    <button id="tabBtnTech" onclick="openTechCardModal()">
       <span>📄 Техкарта</span>
     </button>
   </div>
@@ -1412,21 +1392,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3 style="font-size: 16px; font-weight: 700;">Технологическая карта гибки листового металла (Визуализация)</h3>
-        <button class="btn" style="width: auto; padding: 4px 10px;" onclick="closeTechCard()"
-                data-tip-title="Закрыть окно техкарты"
-                data-tip-desc="Возвращает к 3D-симулятору гибки."
-                data-tip-svg="reset">✕ Закрыть</button>
+        <button class="btn" style="width: auto; padding: 4px 10px;" onclick="closeTechCard()">✕ Закрыть</button>
       </div>
       <div class="modal-body" id="techModalBody"></div>
       <div class="modal-footer">
-        <button class="btn" style="width: auto;" onclick="closeTechCard()"
-                data-tip-title="Закрыть предпросмотр"
-                data-tip-desc="Закрывает окно технологической карты без печати."
-                data-tip-svg="reset">Отмена</button>
-        <button class="btn btn-primary" style="width: auto;" onclick="window.print()"
-                data-tip-title="Распечатать или сохранить в PDF"
-                data-tip-desc="Открывает системное окно печати браузера, где можно выбрать принтер или «Сохранить как PDF»."
-                data-tip-svg="tech_card">🖨 Печать / Сохранить как PDF</button>
+        <button class="btn" style="width: auto;" onclick="closeTechCard()">Отмена</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="window.print()">🖨 Печать / Сохранить как PDF</button>
       </div>
     </div>
   </div>
@@ -1437,80 +1408,30 @@
       <div class="cad-toolbar">
         <div class="cad-tool-group">
           <strong style="font-size:13.5px; margin-right:6px;">✏️ 2D-Чертежник развертки:</strong>
-          <button class="cad-btn active" id="cadModeOuter"
-                  data-tip-title="Режим: Внешний контур детали"
-                  data-tip-desc="Рисует внешний периметр заготовки по точкам. Чтобы замкнуть контур, кликните в начальную зеленую точку или нажмите кнопку «Замкнуть контур»."
-                  data-tip-svg="cad_draw">🟦 Внешний контур</button>
-          <button class="cad-btn" id="cadModeHole"
-                  data-tip-title="Режим: Внутренний вырез / окно"
-                  data-tip-desc="Позволяет начертить внутреннее замкнутое отверстие или окно внутри детали."
-                  data-tip-svg="cad_draw">⬜ Вырез (Окно)</button>
-          <button class="cad-btn" id="cadModeBend"
-                  data-tip-title="Режим: Линия гиба (Оранжевая ось)"
-                  data-tip-desc="Чертит линию разметки гиба по двум точкам. В 3D-окне по ней можно будет кликнуть мышью для мгновенной центровки на ручье."
-                  data-tip-svg="dxf_bend_line">🟧 Линия гиба (2 тчк)</button>
-          <button class="cad-btn" id="cadModeAux"
-                  data-tip-title="Режим: Вспомогательная линия (Не входит в деталь)"
-                  data-tip-desc="Чертит голубые конструкционные линии разметки и построения. К ним работают все привязки (узлы, углы, параллели), но при передаче детали в 3D они автоматически игнорируются!"
-                  data-tip-svg="cad_draw">📏 Вспомогат. линия</button>
-          <button class="cad-btn" id="cadModeRect"
-                  data-tip-title="Инструмент: Быстрый прямоугольник по 2 точкам"
-                  data-tip-desc="Кликните первую точку (угол) и вторую точку по диагонали для построения ровного прямоугольника или прямоугольного выреза."
-                  data-tip-svg="std_shape">▭ Прямоугольник</button>
-          <button class="cad-btn" id="cadModePickRef" style="border-color:#c084fc; color:#6b21a8; background:#faf5ff;"
-                  data-tip-title="Выбрать базовую линию для отсчета угла"
-                  data-tip-desc="Нажмите эту кнопку (или удерживайте Alt) и кликните по любой существующей грани или вспомогательной линии на чертеже. Она станет базой (0°), относительно которой можно откладывать любой заданный угол!"
-                  data-tip-svg="angle_measure">📐 Базовая линия угла</button>
+          <button class="cad-btn active" id="cadModeOuter">🟦 Внешний контур</button>
+          <button class="cad-btn" id="cadModeHole">⬜ Вырез (Окно)</button>
+          <button class="cad-btn" id="cadModeBend">🟧 Линия гиба (2 тчк)</button>
+          <button class="cad-btn" id="cadModeAux">📏 Вспомогат. линия</button>
+          <button class="cad-btn" id="cadModeRect">▭ Прямоугольник</button>
+          <button class="cad-btn" id="cadModePickRef" style="border-color:#c084fc; color:#6b21a8; background:#faf5ff;">📐 Базовая линия угла</button>
         </div>
 
         <div class="cad-tool-group">
-          <label class="cad-snap-pill"
-                 data-tip-title="Привязка к шагу сетки"
-                 data-tip-desc="Притягивает курсор к узлам координатной сетки с выбранным шагом в миллиметрах."
-                 data-tip-svg="grid">
-            <input type="checkbox" id="cadSnapGrid" checked> Сетка
-          </label>
-          <select id="cadGridStep" style="width:68px; padding:3px 5px; font-size:11.5px;"
-                  data-tip-title="Шаг координатной сетки (мм)"
-                  data-tip-desc="Выбирает точность шага сетки: 1 мм, 5 мм или 10 мм."
-                  data-tip-svg="grid">
+          <label class="cad-snap-pill"><input type="checkbox" id="cadSnapGrid" checked> Сетка</label>
+          <select id="cadGridStep" style="width:68px; padding:3px 5px; font-size:11.5px;">
             <option value="1">1 мм</option>
             <option value="5" selected>5 мм</option>
             <option value="10">10 мм</option>
           </select>
-          <label class="cad-snap-pill"
-                 data-tip-title="Привязка к конечным точкам и серединам (Узлы)"
-                 data-tip-desc="Автоматически примагничивает курсор к существующим вершинам и серединам построенных граней."
-                 data-tip-svg="cad_draw">
-            <input type="checkbox" id="cadSnapNodes" checked> Узлы/Середины
-          </label>
-          <label class="cad-snap-pill"
-                 data-tip-title="Привязка по углам (0°, 45°, 90°)"
-                 data-tip-desc="Фиксирует направление чертящейся линии под углами, кратными 15° / 45° / 90° (ортогональность и фаски)."
-                 data-tip-svg="angle_measure">
-            <input type="checkbox" id="cadSnapAngles" checked> Углы (0°/45°/90°)
-          </label>
-          <label class="cad-snap-pill"
-                 data-tip-title="Привязка к параллелям (||) и перпендикулярам (⊥)"
-                 data-tip-desc="Автоматически ловит параллельность (||) и перпендикулярность (⊥) относительно любых уже начерченных граней контура и подсвечивает направляющий луч."
-                 data-tip-svg="cad_draw">
-            <input type="checkbox" id="cadSnapParaPerp" checked> Параллель || и Перпенд. ⊥
-          </label>
+          <label class="cad-snap-pill"><input type="checkbox" id="cadSnapNodes" checked> Узлы/Середины</label>
+          <label class="cad-snap-pill"><input type="checkbox" id="cadSnapAngles" checked> Углы (0°/45°/90°)</label>
+          <label class="cad-snap-pill"><input type="checkbox" id="cadSnapParaPerp" checked> Параллель || и Перпенд. ⊥</label>
         </div>
 
         <div class="cad-tool-group">
-          <button class="cad-btn" id="cadBtnUndo"
-                  data-tip-title="Отменить последнюю точку / линию"
-                  data-tip-desc="Удаляет последний поставленный узел или завершенный элемент."
-                  data-tip-svg="reset">↩ Шаг назад</button>
-          <button class="cad-btn" id="cadBtnCloseLoop" style="background:#dcfce7; border-color:#86efac; color:#166534;"
-                  data-tip-title="Замкнуть текущий контур"
-                  data-tip-desc="Соединяет последнюю точку с первой точкой контура и завершает фигуру."
-                  data-tip-svg="save_bend">✔ Замкнуть контур</button>
-          <button class="cad-btn" id="cadBtnClear" style="color:#dc2626; border-color:#fecaca;"
-                  data-tip-title="Очистить чертеж"
-                  data-tip-desc="Полностью очищает поле 2D-чертежника для рисования с чистого листа."
-                  data-tip-svg="reset">🗑 Очистить</button>
+          <button class="cad-btn" id="cadBtnUndo">↩ Шаг назад</button>
+          <button class="cad-btn" id="cadBtnCloseLoop" style="background:#dcfce7; border-color:#86efac; color:#166534;">✔ Замкнуть контур</button>
+          <button class="cad-btn" id="cadBtnClear" style="color:#dc2626; border-color:#fecaca;">🗑 Очистить</button>
         </div>
       </div>
 
@@ -1527,42 +1448,40 @@
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <strong>Построение по углу и длине:</strong>
           <label>Длина L (мм): <input type="number" id="cadInpLen" value="60" step="1" min="1" style="width:66px;"></label>
-          <label>Угол ∠ (°): <input type="number" id="cadInpAng" value="30" step="5" style="width:64px;"
-                 data-tip-title="Заданный угол построения (°)"
-                 data-tip-desc="Угол, под которым направляется луч привязки мыши и откладывается отрезок (либо от горизонтали X, либо относительно выбранной базовой линии)."></label>
-          <select id="cadAngRefMode" style="width:auto; padding:4px 6px; font-size:11.5px; font-weight:600;"
-                  data-tip-title="От чего отсчитывать угол ∠"
-                  data-tip-desc="Выберите: от глобальной горизонтали X (0°), относительно предыдущего сегмента или относительно выбранной базовой линии на чертеже.">
+          <label>Угол ∠ (°): <input type="number" id="cadInpAng" value="30" step="5" style="width:64px;"></label>
+          <select id="cadAngRefMode" style="width:auto; padding:4px 6px; font-size:11.5px; font-weight:600;">
             <option value="global">От оси X (Абсолютный)</option>
             <option value="refLine">Относительно базовой линии</option>
             <option value="lastSeg">Относительно пред. отрезка</option>
           </select>
           <span id="cadRefLineBadge" style="font-size:11px; background:#f3e8ff; color:#6b21a8; padding:3px 7px; border-radius:5px; font-weight:600;">База: Ось X (0°)</span>
-          <button class="cad-btn" id="cadBtnAddExact" style="background:#0f172a; color:#fff;"
-                  data-tip-title="Добавить отрезок по заданным длине и углу"
-                  data-tip-desc="Строит следующий отрезок ровно на длину L (мм) под углом ∠ (°) от последней точки."
-                  data-tip-svg="cad_draw">➕ Отложить отрезок</button>
+          <button class="cad-btn" id="cadBtnAddExact" style="background:#0f172a; color:#fff;">➕ Отложить отрезок</button>
         </div>
 
         <div style="display:flex; gap:8px; align-items:center;">
-          <button class="cad-btn" id="cadBtnCancel"
-                  data-tip-title="Отменить и закрыть редактор"
-                  data-tip-desc="Закрывает окно 2D-чертежника без изменения текущей детали в 3D-сцене."
-                  data-tip-svg="reset">Отмена</button>
-          <button class="cad-btn" id="cadBtnApplyTo3D" style="background:var(--success); color:#fff; border-color:var(--success); padding:8px 16px; font-size:13px;"
-                  data-tip-title="Передать начерченную деталь в 3D-симулятор"
-                  data-tip-desc="Загружает созданный контур, вырезы и линии гиба (игнорируя вспомогательные линии) на стол станка для проверки гибки в 3D."
-                  data-tip-svg="save_bend">🚀 Передать деталь в 3D-Симулятор</button>
+          <button class="cad-btn" id="cadBtnCancel">Отмена</button>
+          <button class="cad-btn" id="cadBtnApplyTo3D" style="background:var(--success); color:#fff; border-color:var(--success); padding:8px 16px; font-size:13px;">🚀 Передать деталь в 3D-Симулятор</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    window.addEventListener('DOMContentLoaded', function() {
-      if (typeof THREE === 'undefined') {
-        const vp = document.getElementById('viewport');
-        vp.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;text-align:center;color:#334155;"><h3>⚠️ Нет доступа к 3D-библиотеке</h3><p style="margin-top:8px;font-size:13px;">Проверьте подключение к интернету и обновите страницу.</p></div>';
+    function initBendSimulatorApp() {
+      if (typeof THREE === 'undefined' || typeof THREE.OrbitControls === 'undefined') {
+        const s1 = document.createElement('script');
+        s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+        s1.onload = () => {
+          const s2 = document.createElement('script');
+          s2.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
+          s2.onload = initBendSimulatorApp;
+          document.head.appendChild(s2);
+        };
+        s1.onerror = () => {
+          const vp = document.getElementById('viewport');
+          vp.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;text-align:center;color:#334155;"><h3>⚠️ Нет доступа к 3D-библиотеке</h3><p style="margin-top:8px;font-size:13px;">Проверьте подключение к интернету или положите файлы three.min.js и OrbitControls.js рядом с index.html.</p></div>';
+        };
+        document.head.appendChild(s1);
         return;
       }
 
@@ -1947,7 +1866,6 @@
       bendAngle: 0,
       punchY: 20,
       currentDropY: 0,
-      autoStroke: true,
       selectedEdgeIdx: 0,
       selectedExistingBendIdx: -1,
       selectedDxfBendLineIdx: 0,
@@ -2674,6 +2592,26 @@
     let savedEdgeSegments = [];
     let savedBendCenterlines = [];
     let savedDxfBendLines3D = []; // [{p1: Vector3, p2: Vector3, layer}]
+    let savedFlatMarkers = []; // Маркеры связи текущей 3D-геометрии с вечными координатами плоской развёртки
+    let flatSnapshot = null;
+
+    function captureFlatSnapshot() {
+      flatSnapshot = {
+        partTris: [...savedPartTris],
+        edgeSegments: savedEdgeSegments.map(seg => seg.map(p => p.clone())),
+        dxfBendLines: savedDxfBendLines3D.map(bl => ({
+          p1: bl.p1.clone(),
+          p2: bl.p2.clone(),
+          layer: bl.layer
+        })),
+        flatMarkers: savedFlatMarkers.map(m => ({
+          flatPt: m.flatPt.clone(),
+          curPt: m.curPt.clone(),
+          curNormal: m.curNormal.clone(),
+          flatNormal: m.flatNormal.clone()
+        }))
+      };
+    }
 
     function rebuildFlatPart() {
       const outerPts = [...state.partOuter];
@@ -2724,6 +2662,29 @@
         layer: bl.layer || 'BEND'
       }));
 
+      // Создаём плотную сетку маркеров на плоской развёртке для отслеживания любых гибов
+      savedFlatMarkers = [];
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      state.partOuter.forEach(p => {
+        if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+      });
+      const stepX = Math.max(4, (maxX - minX) / 28);
+      const stepY = Math.max(4, (maxY - minY) / 28);
+      for (let x = minX; x <= maxX; x += stepX) {
+        for (let y = minY; y <= maxY; y += stepY) {
+          if (pointInPolygon2D(x, y, state.partOuter)) {
+            const p3d = new THREE.Vector3(x, 0, -y);
+            savedFlatMarkers.push({
+              flatPt: p3d.clone(),
+              curPt: p3d.clone(),
+              flatNormal: new THREE.Vector3(0, -1, 0),
+              curNormal: new THREE.Vector3(0, -1, 0)
+            });
+          }
+        }
+      }
+
       savedBendCenterlines = [];
       state.selectedExistingBendIdx = -1;
       state.selectedDxfBendLineIdx = 0;
@@ -2733,6 +2694,7 @@
 
       state.baseMatrix.identity();
       populateEdgesDropdown();
+      captureFlatSnapshot();
       updatePartSimulation();
     }
 
@@ -3761,14 +3723,11 @@
 
       document.getElementById('valDrop').textContent = state.currentDropY.toFixed(1) + ' мм';
 
-      if (state.autoStroke) {
-        if (state.bendAngle > 0.05 && !state.closedContourBlocked) {
-          state.punchY = state.currentDropY + state.thickness;
-        } else {
-          state.punchY = state.thickness + 18;
-        }
-        document.getElementById('rngStroke').value = state.punchY;
-        document.getElementById('valStroke').textContent = state.punchY.toFixed(1) + ' мм';
+      // Автоматическое визуальное сопровождение пуансона
+      if (state.bendAngle > 0.05 && !state.closedContourBlocked) {
+        state.punchY = state.currentDropY + state.thickness;
+      } else {
+        state.punchY = state.thickness + 18;
       }
       if (punchGroup) punchGroup.position.y = state.punchY;
 
@@ -3849,7 +3808,6 @@
 
       raycaster.setFromCamera(mouse, camera);
 
-      // 0A. Режим 3D-ЛИНЕЙКИ
       if (state.rulerMode) {
         const bendHits = raycaster.intersectObjects([...bendLines3DGroup.children, ...dxfBendLines3DGroup.children], false);
         if (bendHits.length > 0) {
@@ -3864,7 +3822,6 @@
         return;
       }
 
-      // 0B. Режим 3D-УГЛОМЕРА
       if (state.angleMode) {
         const partHits = raycaster.intersectObjects([partMesh, ...toolGroup.children], true);
         if (partHits.length > 0 && partHits[0].face) {
@@ -3875,7 +3832,6 @@
         return;
       }
 
-      // 1A. Прямой клик по оранжевой линии гиба из слоя DXF -> сразу совмещаем её с осью ручья (Z = 0)!
       const dxfHits = raycaster.intersectObjects(dxfBendLines3DGroup.children, false);
       if (dxfHits.length > 0 && !state.pickFaceMode && !e.shiftKey) {
         const dIdx = dxfHits[0].object.userData.dxfBendLineIdx;
@@ -3887,7 +3843,6 @@
         }
       }
 
-      // 1B. Прямой клик по фиолетовой 3D-оси существующего гиба
       const bendHits = raycaster.intersectObjects(bendLines3DGroup.children, false);
       if (bendHits.length > 0 && !state.pickFaceMode && !e.shiftKey) {
         const bIdx = bendHits[0].object.userData.bendLineIdx;
@@ -3901,7 +3856,6 @@
       if (intersects.length > 0) {
         const hit = intersects[0];
 
-        // 2. Укладка выбранной плоскости детали на зеркало ручья
         if (state.pickFaceMode || e.shiftKey) {
           if (state.bendAngle > 0.1) {
             showToast('Сначала зафиксируйте текущий гиб (или сбросьте угол в 0°), чтобы переложить деталь на новую плоскость.');
@@ -3914,7 +3868,6 @@
 
         const hitPoint = hit.point;
 
-        // Проверка близости к существующей центральной линии гиба
         let bestBendIdx = -1, minBendDist = Infinity;
         for (let i = 0; i < savedBendCenterlines.length; i++) {
           const bLine = getExistingBendWorldLine(i, true);
@@ -4042,7 +3995,7 @@
     }
 
     // =========================================================================
-    // 11. СОХРАНЕНИЕ ГИБА И ПЕЧАТНАЯ ТЕХКАРТА
+    // 11. СОХРАНЕНИЕ ГИБА, ОТМЕНА ЛЮБОГО ГИБА И ПЕЧАТНАЯ ТЕХКАРТА
     // =========================================================================
     function setBendAngleValue(val) {
       const clamped = Math.max(0, Math.min(135, parseFloat(val) || 0));
@@ -4057,6 +4010,230 @@
       updatePartSimulation();
     }
 
+    // Трансформирует маркеры связи развёртки вместе с очередным гибом
+    function transformFlatMarkersWithCurrentBend(placeMat, angleDeg, isPartial, baseSign) {
+      const dropY = computeDieDrop(angleDeg);
+      const eps = 1.5;
+      savedFlatMarkers.forEach(m => {
+        const wPt = m.curPt.clone().applyMatrix4(placeMat);
+        const wPtPlusN = m.curPt.clone().addScaledVector(m.curNormal, eps).applyMatrix4(placeMat);
+
+        const fPt = transformSinglePointWithCurrentBend(wPt, true, isPartial, baseSign);
+        const fPtPlusN = transformSinglePointWithCurrentBend(wPtPlusN, true, isPartial, baseSign);
+
+        m.curPt.copy(fPt);
+        m.curNormal.subVectors(fPtPlusN, fPt).normalize();
+      });
+    }
+
+    // Находит вечные координаты линии текущего гиба на исходной плоской развёртке
+    function captureIntrinsicFlatBendDescriptor() {
+      const placeMat = getPlacementMatrix();
+      const invPlace = placeMat.clone().invert();
+
+      // Находим две точки на текущей оси гиба (Z = 0) в мировых координатах под инструментом
+      let bestMinX = -35, bestMaxX = 35;
+      const meshPreview = buildCurrentWorldMesh(savedPartTris, 0);
+      if (meshPreview.activeIntervals && meshPreview.activeIntervals.length > 0) {
+        bestMinX = meshPreview.activeIntervals[0].minX;
+        bestMaxX = meshPreview.activeIntervals[meshPreview.activeIntervals.length - 1].maxX;
+      }
+      const midX = (bestMinX + bestMaxX) * 0.5;
+      const worldCenter = new THREE.Vector3(midX, 0, 0);
+      const worldAxisDir = new THREE.Vector3(1, 0, 0);
+
+      // Ищем ближайший маркер на опорной полке к центру линии гиба
+      let bestMarker = null;
+      let minDist = Infinity;
+      for (const m of savedFlatMarkers) {
+        const w = m.curPt.clone().applyMatrix4(placeMat);
+        if (Math.abs(w.y) < state.thickness * 3.0 && isXInsideAnyToolSection(w.x, 8.0)) {
+          const d = Math.hypot(w.x - midX, w.z);
+          if (d < minDist) {
+            minDist = d;
+            bestMarker = m;
+          }
+        }
+      }
+
+      // Находим локальное направление оси гиба на исходном плоском листе через 2 соседних маркера
+      let flatAnchor = new THREE.Vector3(0, 0, 0);
+      let flatAxisDir = new THREE.Vector3(1, 0, 0);
+      let normalSign = 1; // +1: стандартная укладка (нормаль маркера смотрит вниз -Y), -1: перевёрнута на 180°
+
+      if (bestMarker) {
+        const wOrigin = bestMarker.curPt.clone().applyMatrix4(placeMat);
+        const wNormal = bestMarker.curNormal.clone().transformDirection(placeMat).normalize();
+        normalSign = wNormal.y <= 0 ? 1 : -1;
+
+        // Ищем два других маркера на той же плоской полке, чтобы построить точный локальный базис полки
+        const coplanar = [];
+        for (const m of savedFlatMarkers) {
+          if (m === bestMarker) continue;
+          const wn = m.curNormal.clone().transformDirection(placeMat).normalize();
+          if (wn.dot(wNormal) > 0.96) {
+            const dFlat = m.flatPt.distanceTo(bestMarker.flatPt);
+            if (dFlat > 3.0 && dFlat < 80.0) {
+              coplanar.push(m);
+            }
+          }
+        }
+
+        if (coplanar.length >= 2) {
+          const m1 = coplanar[0];
+          const v1Flat = new THREE.Vector3().subVectors(m1.flatPt, bestMarker.flatPt);
+          const uFlat = v1Flat.clone().normalize();
+          const vFlat = new THREE.Vector3(-uFlat.z, 0, uFlat.x).normalize();
+
+          const w1 = m1.curPt.clone().applyMatrix4(placeMat);
+          const uWorld = new THREE.Vector3().subVectors(w1, wOrigin);
+          uWorld.y = 0;
+          uWorld.normalize();
+          const vWorld = new THREE.Vector3(-uWorld.z * normalSign, 0, uWorld.x * normalSign).normalize();
+
+          // Переводим вектор мировой оси X (1,0,0) и смещение от маркера до центра оси (midX, 0) в координаты развёртки
+          const deltaWorld = new THREE.Vector3(midX - wOrigin.x, 0, 0 - wOrigin.z);
+          const du = deltaWorld.dot(uWorld);
+          const dv = deltaWorld.dot(vWorld);
+
+          flatAnchor.copy(bestMarker.flatPt)
+            .addScaledVector(uFlat, du)
+            .addScaledVector(vFlat, dv);
+
+          const axU = worldAxisDir.dot(uWorld);
+          const axV = worldAxisDir.dot(vWorld);
+          flatAxisDir.set(0, 0, 0)
+            .addScaledVector(uFlat, axU)
+            .addScaledVector(vFlat, axV)
+            .normalize();
+        }
+      }
+
+      return {
+        partTris: [...savedPartTris],
+        edgeSegments: savedEdgeSegments.map(seg => seg.map(p => p.clone())),
+        bendCenterlines: savedBendCenterlines.map(bl => ({
+          p1: bl.p1.clone(),
+          p2: bl.p2.clone(),
+          stepNum: bl.stepNum,
+          angle: bl.angle
+        })),
+        dxfBendLines: savedDxfBendLines3D.map(dl => ({
+          p1: dl.p1.clone(),
+          p2: dl.p2.clone(),
+          layer: dl.layer
+        })),
+        flatMarkers: savedFlatMarkers.map(m => ({
+          flatPt: m.flatPt.clone(),
+          curPt: m.curPt.clone(),
+          curNormal: m.curNormal.clone(),
+          flatNormal: m.flatNormal.clone()
+        })),
+        baseMatrix: state.baseMatrix.clone(),
+        posX: state.posX,
+        posZ: state.posZ,
+        rotY: state.rotY,
+        selectedEdgeIdx: state.selectedEdgeIdx,
+        flatAnchor: flatAnchor,
+        flatAxisDir: flatAxisDir,
+        normalSign: normalSign,
+        targetMidX: midX,
+        useSections: state.useSections,
+        sectionLengthsStr: state.sectionLengthsStr,
+        sectionGap: state.sectionGap,
+        sectionOffsetX: state.sectionOffsetX,
+        toolLength: state.toolLength
+      };
+    }
+
+    // Укладывает текущую (полусогнутую или плоскую) деталь на матрицу так, чтобы её сохранённая линия гиба
+    // (заданная в вечных координатах развёртки flatAnchor + flatAxisDir) легла строго на красную ось станка (Z=0, Y=0)
+    function alignPartByIntrinsicBendDescriptor(snap) {
+      // Находим маркер развёртки, ближайший к сохранённой точке линии гиба flatAnchor
+      let bestM = null;
+      let minD = Infinity;
+      for (const m of savedFlatMarkers) {
+        const d = m.flatPt.distanceTo(snap.flatAnchor);
+        if (d < minD) {
+          minD = d;
+          bestM = m;
+        }
+      }
+
+      if (!bestM) return;
+
+      // Ищем соседний маркер на той же плоской грани в текущей 3D-детали
+      let secondM = null;
+      let bestScore = -Infinity;
+      for (const m of savedFlatMarkers) {
+        if (m === bestM) continue;
+        if (m.curNormal.dot(bestM.curNormal) > 0.96) {
+          const dFlat = m.flatPt.distanceTo(bestM.flatPt);
+          if (dFlat > 3.0 && dFlat < 70.0) {
+            const dirFlat = new THREE.Vector3().subVectors(m.flatPt, bestM.flatPt).normalize();
+            const score = Math.abs(dirFlat.dot(snap.flatAxisDir));
+            if (score > bestScore) {
+              bestScore = score;
+              secondM = m;
+            }
+          }
+        }
+      }
+
+      if (!secondM) return;
+
+      // 1. Поворачиваем текущую деталь так, чтобы нормаль опорной полки смотрела строго в (0, -normalSign, 0)
+      const targetDown = new THREE.Vector3(0, snap.normalSign >= 0 ? -1 : 1, 0);
+      const curN = bestM.curNormal.clone().normalize();
+      const qAlignFace = new THREE.Quaternion().setFromUnitVectors(curN, targetDown);
+      const mAlignFace = new THREE.Matrix4().makeRotationFromQuaternion(qAlignFace);
+
+      // 2. Вычисляем в этой горизонтальной плоскости текущее положение точки гиба и направления оси гиба
+      const uFlat = new THREE.Vector3().subVectors(secondM.flatPt, bestM.flatPt).normalize();
+      const vFlat = new THREE.Vector3(-uFlat.z, 0, uFlat.x).normalize();
+
+      const p0Cur = bestM.curPt.clone().applyMatrix4(mAlignFace);
+      const p1Cur = secondM.curPt.clone().applyMatrix4(mAlignFace);
+
+      const uCur = new THREE.Vector3().subVectors(p1Cur, p0Cur);
+      uCur.y = 0;
+      uCur.normalize();
+      const vCur = new THREE.Vector3(-uCur.z * snap.normalSign, 0, uCur.x * snap.normalSign).normalize();
+
+      const deltaFlat = new THREE.Vector3().subVectors(snap.flatAnchor, bestM.flatPt);
+      const du = deltaFlat.dot(uFlat);
+      const dv = deltaFlat.dot(vFlat);
+
+      const curAnchor3D = p0Cur.clone()
+        .addScaledVector(uCur, du)
+        .addScaledVector(vCur, dv);
+
+      const axU = snap.flatAxisDir.dot(uFlat);
+      const axV = snap.flatAxisDir.dot(vFlat);
+      const curAxisDir3D = new THREE.Vector3(0, 0, 0)
+        .addScaledVector(uCur, axU)
+        .addScaledVector(vCur, axV)
+        .normalize();
+
+      // 3. Поворачиваем деталь вокруг вертикальной оси Y, чтобы curAxisDir3D совпал с мировой осью X (1, 0, 0)
+      const angY = Math.atan2(curAxisDir3D.z, curAxisDir3D.x);
+      const mRotY = new THREE.Matrix4().makeRotationY(angY);
+      const mCombinedRot = new THREE.Matrix4().multiplyMatrices(mRotY, mAlignFace);
+
+      const finalAnchor = curAnchor3D.clone().applyMatrix4(mRotY);
+      const targetY = snap.normalSign >= 0 ? 0 : state.thickness;
+      const mTrans = new THREE.Matrix4().makeTranslation(
+        (snap.targetMidX || 0) - finalAnchor.x,
+        targetY - finalAnchor.y,
+        0 - finalAnchor.z
+      );
+
+      state.baseMatrix.multiplyMatrices(mTrans, mCombinedRot);
+      state.posX = 0;
+      state.posZ = 0;
+      state.rotY = 0;
+    }
+
     function saveCurrentBend() {
       if (state.bendAngle <= 0.05) {
         showToast('Задайте угол гиба больше 0°, чтобы зафиксировать гиб.');
@@ -4066,6 +4243,12 @@
         showToast('Невозможно зафиксировать гиб: цельная деталь на оси гиба выходит за край пуансона/ручья!');
         return;
       }
+
+      if (!flatSnapshot && state.savedBends.length === 0) {
+        captureFlatSnapshot();
+      }
+
+      const preBendSnap = captureIntrinsicFlatBendDescriptor();
 
       renderer.render(scene, camera);
       const screenshotDataUrl = renderer.domElement.toDataURL('image/png');
@@ -4080,6 +4263,9 @@
       const isPartial = meshResult.isPartialBend;
       const baseSign = meshResult.baseSideSign;
       const dropY = computeDieDrop(state.bendAngle);
+
+      // Обновляем маркеры связи с плоской развёрткой
+      transformFlatMarkersWithCurrentBend(placeMat, state.bendAngle, isPartial, baseSign);
 
       savedEdgeSegments = savedEdgeSegments.map(seg => seg.map(pt => {
         const w = pt.clone().applyMatrix4(placeMat);
@@ -4138,7 +4324,8 @@
         dropY: dropY,
         punchY: state.punchY,
         activeLen: state.currentActiveBendLength,
-        screenshot: screenshotDataUrl
+        screenshot: screenshotDataUrl,
+        preBendSnap: preBendSnap
       });
 
       state.baseMatrix.identity();
@@ -4160,6 +4347,208 @@
       showToast(`Гиб #${newStepNum} зафиксирован. Кликните по грани детали для укладки на ручей.`);
     }
 
+    // Удаление любого гиба из списка с гарантированным сохранением и пересчётом остальных гибов
+    window.removeBendAtIndex = function(removeIdx) {
+      if (removeIdx < 0 || removeIdx >= state.savedBends.length) return;
+      const removedStep = state.savedBends[removeIdx];
+
+      // Случай 1: Удаляется ПОСЛЕДНИЙ гиб в истории -> мгновенный 100% точный откат к снимку перед ним!
+      if (removeIdx === state.savedBends.length - 1 && removedStep.preBendSnap) {
+        const snap = removedStep.preBendSnap;
+        savedPartTris = [...snap.partTris];
+        savedEdgeSegments = snap.edgeSegments.map(seg => seg.map(p => p.clone()));
+        savedBendCenterlines = snap.bendCenterlines.map(bl => ({
+          p1: bl.p1.clone(),
+          p2: bl.p2.clone(),
+          stepNum: bl.stepNum,
+          angle: bl.angle
+        }));
+        savedDxfBendLines3D = snap.dxfBendLines.map(dl => ({
+          p1: dl.p1.clone(),
+          p2: dl.p2.clone(),
+          layer: dl.layer
+        }));
+        if (snap.flatMarkers) {
+          savedFlatMarkers = snap.flatMarkers.map(m => ({
+            flatPt: m.flatPt.clone(),
+            curPt: m.curPt.clone(),
+            curNormal: m.curNormal.clone(),
+            flatNormal: m.flatNormal.clone()
+          }));
+        }
+
+        state.savedBends.pop();
+        state.baseMatrix.copy(snap.baseMatrix);
+        state.posX = snap.posX;
+        state.posZ = snap.posZ;
+        state.rotY = snap.rotY;
+        state.selectedEdgeIdx = snap.selectedEdgeIdx;
+
+        document.getElementById('rngPosX').value = state.posX;
+        document.getElementById('valPosX').textContent = state.posX.toFixed(1) + ' мм';
+        document.getElementById('rngPosZ').value = state.posZ;
+        document.getElementById('valPosZ').textContent = state.posZ.toFixed(1) + ' мм';
+        document.getElementById('rngRotY').value = state.rotY;
+        document.getElementById('valRotY').textContent = state.rotY.toFixed(1) + '°';
+
+        populateExistingBendsDropdown();
+        renderHistoryList();
+        setPickFaceMode(false);
+        setBendAngleValue(0);
+        showToast(`Последний гиб #${removeIdx + 1} (${removedStep.angle}°) отменён. Предыдущие гибы сохранены.`);
+        return;
+      }
+
+      // Случай 2: Удаляется 1-й или средний гиб -> пересчитываем все оставшиеся гибы по их вечным маркерам развёртки!
+      const remaining = state.savedBends.filter((_, idx) => idx !== removeIdx);
+
+      if (flatSnapshot) {
+        savedPartTris = [...flatSnapshot.partTris];
+        savedEdgeSegments = flatSnapshot.edgeSegments.map(seg => seg.map(p => p.clone()));
+        savedDxfBendLines3D = flatSnapshot.dxfBendLines.map(bl => ({
+          p1: bl.p1.clone(),
+          p2: bl.p2.clone(),
+          layer: bl.layer
+        }));
+        savedFlatMarkers = flatSnapshot.flatMarkers.map(m => ({
+          flatPt: m.flatPt.clone(),
+          curPt: m.curPt.clone(),
+          curNormal: m.curNormal.clone(),
+          flatNormal: m.flatNormal.clone()
+        }));
+      } else {
+        rebuildFlatPart();
+      }
+
+      savedBendCenterlines = [];
+      state.savedBends = [];
+
+      const curToolState = {
+        useSections: state.useSections,
+        sectionLengthsStr: state.sectionLengthsStr,
+        sectionGap: state.sectionGap,
+        sectionOffsetX: state.sectionOffsetX,
+        toolLength: state.toolLength
+      };
+
+      remaining.forEach((b, newIdx) => {
+        const snap = b.preBendSnap;
+        if (!snap) return;
+
+        state.useSections = snap.useSections;
+        state.sectionLengthsStr = snap.sectionLengthsStr;
+        state.sectionGap = snap.sectionGap;
+        state.sectionOffsetX = snap.sectionOffsetX;
+        state.toolLength = snap.toolLength;
+        computeToolSegments();
+
+        // Укладываем текущую деталь так, чтобы вечная линия этого гиба (flatAnchor + flatAxisDir)
+        // легла строго горизонтально на матрицу (Y=0) и совпала с красной осью станка (Z=0)
+        alignPartByIntrinsicBendDescriptor(snap);
+
+        // Сохраняем обновлённый снимок перед выполнением этого гиба
+        b.preBendSnap = captureIntrinsicFlatBendDescriptor();
+        state.bendAngle = b.angle;
+
+        const meshResult = buildCurrentWorldMesh(savedPartTris, state.bendAngle);
+        savedPartTris = Array.from(meshResult.verts);
+
+        const placeMat = getPlacementMatrix();
+        const isPartial = meshResult.isPartialBend;
+        const baseSign = meshResult.baseSideSign;
+        const dropY = computeDieDrop(state.bendAngle);
+
+        transformFlatMarkersWithCurrentBend(placeMat, state.bendAngle, isPartial, baseSign);
+
+        savedEdgeSegments = savedEdgeSegments.map(seg => seg.map(pt => {
+          const w = pt.clone().applyMatrix4(placeMat);
+          return transformSinglePointWithCurrentBend(w, true, isPartial, baseSign);
+        }));
+
+        savedBendCenterlines = savedBendCenterlines.map(bLine => {
+          const w1 = bLine.p1.clone().applyMatrix4(placeMat);
+          const w2 = bLine.p2.clone().applyMatrix4(placeMat);
+          return {
+            p1: transformSinglePointWithCurrentBend(w1, true, isPartial, baseSign),
+            p2: transformSinglePointWithCurrentBend(w2, true, isPartial, baseSign),
+            stepNum: bLine.stepNum,
+            angle: bLine.angle
+          };
+        });
+
+        savedDxfBendLines3D = savedDxfBendLines3D.map(dLine => {
+          const w1 = dLine.p1.clone().applyMatrix4(placeMat);
+          const w2 = dLine.p2.clone().applyMatrix4(placeMat);
+          return {
+            p1: transformSinglePointWithCurrentBend(w1, true, isPartial, baseSign),
+            p2: transformSinglePointWithCurrentBend(w2, true, isPartial, baseSign),
+            layer: dLine.layer
+          };
+        });
+
+        const stepNum = newIdx + 1;
+        const centerApex = foldPointInMachineSpace({ x: 0, y: state.thickness * 0.5, z: 0 }, state.bendAngle, dropY, true, baseSign);
+        if (meshResult.activeIntervals && meshResult.activeIntervals.length > 0) {
+          meshResult.activeIntervals.forEach(iv => {
+            savedBendCenterlines.push({
+              p1: new THREE.Vector3(iv.minX, centerApex.y, centerApex.z),
+              p2: new THREE.Vector3(iv.maxX, centerApex.y, centerApex.z),
+              stepNum: stepNum,
+              angle: state.bendAngle
+            });
+          });
+        } else {
+          savedBendCenterlines.push({
+            p1: new THREE.Vector3(-40, centerApex.y, centerApex.z),
+            p2: new THREE.Vector3(40, centerApex.y, centerApex.z),
+            stepNum: stepNum,
+            angle: state.bendAngle
+          });
+        }
+
+        b.stepNum = stepNum;
+        state.savedBends.push(b);
+      });
+
+      state.useSections = curToolState.useSections;
+      state.sectionLengthsStr = curToolState.sectionLengthsStr;
+      state.sectionGap = curToolState.sectionGap;
+      state.sectionOffsetX = curToolState.sectionOffsetX;
+      state.toolLength = curToolState.toolLength;
+      buildTools();
+
+      state.baseMatrix.identity();
+      state.posX = 0;
+      state.posZ = 0;
+      state.rotY = 0;
+
+      document.getElementById('rngPosX').value = 0;
+      document.getElementById('valPosX').textContent = '0.0 мм';
+      document.getElementById('rngPosZ').value = 0;
+      document.getElementById('valPosZ').textContent = '0.0 мм';
+      document.getElementById('rngRotY').value = 0;
+      document.getElementById('valRotY').textContent = '0.0°';
+
+      populateExistingBendsDropdown();
+      renderHistoryList();
+      setPickFaceMode(false);
+      setBendAngleValue(0);
+      showToast(`Гиб #${removeIdx + 1} (${removedStep.angle}°) удалён. Оставшиеся гибы (${state.savedBends.length} шт.) сохранены!`);
+    };
+
+    window.undoLastBend = function() {
+      if (state.savedBends.length === 0) {
+        if (state.bendAngle > 0.05) {
+          setBendAngleValue(0);
+          showToast('Текущий предварительный гиб сброшен в 0°.');
+        } else {
+          showToast('Нет выполненных гибов для отмены.');
+        }
+        return;
+      }
+      window.removeBendAtIndex(state.savedBends.length - 1);
+    };
+
     function renderHistoryList() {
       const list = document.getElementById('historyList');
       list.innerHTML = '';
@@ -4171,7 +4560,12 @@
       state.savedBends.forEach((b, i) => {
         const li = document.createElement('li');
         li.className = 'history-item';
-        li.innerHTML = `<span><strong>Гиб #${i + 1}:</strong> Угол ${b.angle}° | База Z = ${b.edgeDist.toFixed(1)} мм</span>`;
+        li.innerHTML = `
+          <span><strong>Гиб #${i + 1}:</strong> Угол ${b.angle}° | Z = ${b.edgeDist.toFixed(1)} мм</span>
+          <button type="button" class="btn btn-danger" style="width:auto; padding:1px 6px; font-size:10.5px; line-height:1.2;"
+                  title="Отменить только этот гиб #${i + 1} и пересчитать деталь"
+                  onclick="removeBendAtIndex(${i})">✕</button>
+        `;
         list.appendChild(li);
       });
     }
@@ -4394,19 +4788,6 @@
     document.getElementById('rngMobileAngle').addEventListener('input', e => setBendAngleValue(e.target.value));
     document.getElementById('btnMobileSaveBend').addEventListener('click', saveCurrentBend);
 
-    document.getElementById('rngStroke').addEventListener('input', e => {
-      state.punchY = parseFloat(e.target.value);
-      document.getElementById('valStroke').textContent = state.punchY.toFixed(1) + ' мм';
-      document.getElementById('chkAutoStroke').checked = false;
-      state.autoStroke = false;
-      updatePartSimulation();
-    });
-
-    document.getElementById('chkAutoStroke').addEventListener('change', e => {
-      state.autoStroke = e.target.checked;
-      updatePartSimulation();
-    });
-
     document.getElementById('inpThickness').addEventListener('change', e => {
       state.thickness = Math.max(0.5, parseFloat(e.target.value) || 2.0);
       state.savedBends = [];
@@ -4437,6 +4818,15 @@
     document.getElementById('btnApplyBendDist').addEventListener('click', setDistanceFromExistingBendLine);
 
     document.getElementById('btnSaveBend').addEventListener('click', saveCurrentBend);
+    document.getElementById('btnUndoLastBend').addEventListener('click', window.undoLastBend);
+
+    window.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !cadState.isOpen) {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        e.preventDefault();
+        window.undoLastBend();
+      }
+    });
 
     document.getElementById('btnResetPart').addEventListener('click', () => {
       state.savedBends = [];
@@ -5430,15 +5820,21 @@
       showToast('Начерченная деталь успешно передана в 3D-симулятор!');
     });
 
-    // Принудительный сброс старого Service Worker кэша, чтобы ссылка всегда открывала свежую версию
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        for (const reg of regs) reg.unregister();
-      });
-      if (window.caches) {
-        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    // Безопасный сброс старого Service Worker кэша (только для http/https и вне изолированных iframe)
+    try {
+      if ('serviceWorker' in navigator && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => {
+            for (const reg of regs) reg.unregister().catch(() => {});
+          })
+          .catch(() => {});
       }
-    }
+      if (window.caches) {
+        caches.keys()
+          .then(keys => keys.forEach(k => caches.delete(k).catch(() => {})))
+          .catch(() => {});
+      }
+    } catch (e) {}
 
     window.addEventListener('resize', () => {
       if (cadState.isOpen) {
@@ -5473,7 +5869,13 @@
       renderer.render(scene, camera);
     }
     animate();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initBendSimulatorApp);
+    } else {
+      initBendSimulatorApp();
+    }
   </script>
 </body>
 </html>
